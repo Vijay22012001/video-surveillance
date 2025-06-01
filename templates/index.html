@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Violence Detection Livestream</title>
+    <link href="styles.css" rel="stylesheet"> <!-- Link to compiled CSS from SCSS -->
+    
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+     
+      body {
+        font-family: "Roboto", sans-serif;
+        background: linear-gradient(45deg, #e0f2f7, #e8f5e9); /* Vibrant background with light blue and pale green */
+        color: #333; /* Dark gray text for contrast */
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+     
+      .navbar {
+        background: #2196f3; /* Bright blue navbar */
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        padding: 1.5rem 2.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        transition: background 0.3s ease-in-out;
+      }
+     
+      .navbar .navbar-logo {
+        color: #fff;
+        font-size: 2rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: color 0.3s ease-in-out;
+      }
+     
+      .navbar .navbar-logo:hover {
+        color: #003366; /* Dark blue accent on hover */
+      }
+     
+      .navbar .navbar-links {
+        display: flex;
+        gap: 2.5rem;
+        font-size: 1.1rem;
+      }
+     
+      .navbar .navbar-links a {
+        color: #fff;
+        padding: 0.8rem 1.5rem;
+        border-radius: 0.375rem;
+        text-decoration: none;
+        position: relative;
+        font-weight: 500;
+        transition: all 0.3s ease-in-out;
+        text-transform: uppercase;
+      }
+     
+      .navbar .navbar-links a:hover {
+        background-color: #003366; /* Dark blue hover effect */
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+      }
+     
+      .navbar .navbar-links a::after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background-color: #003366; /* Dark blue accent */
+        bottom: 0;
+        left: 0;
+        transform: scaleX(0);
+        transform-origin: bottom right;
+        transition: transform 0.3s ease-out;
+      }
+     
+      .navbar .navbar-links a:hover::after {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+      }
+     
+      .main-content {
+        flex-grow: 1;
+        max-width: 1500px;
+        margin: 1rem auto;
+        padding: 1rem;
+        text-align: center;
+        background: #fff;
+         position: relative;
+        animation: fadeIn 1s ease-out;
+      }
+     
+      .main-content .title {
+        font-size: 3rem;
+        color: #2196f3; /* Bright blue for title */
+        font-weight: 600;
+        margin-bottom: 3rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+     
+      .main-content .video-feed {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        justify-items: center;
+      }
+     
+     
+     
+      .main-content .video-feed .video-container:hover {
+        transform: scale(1.05);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
+      }
+     
+     
+     
+      .main-content .video-feed .video-container img:hover {
+        opacity: 0.8;
+      }
+     
+      .main-content .uploaded-frames {
+        margin-top: 3rem;
+        list-style-type: none;
+        padding: 0;
+      }
+     
+      .main-content .uploaded-frames li {
+        background-color: #fff;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        font-size: 1.2rem;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+     
+      .main-content .uploaded-frames li:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        background-color: #f8f9fa;
+      }
+     
+      .main-content .uploaded-frames li a {
+        color: #2196f3; /* Bright blue for links */
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+     
+      .main-content .uploaded-frames li a:hover {
+        color: #003366; /* Dark blue accent on hover */
+        text-decoration: underline;
+      }
+     
+      .main-content .uploaded-frames li .icon {
+        color: #003366; /* Dark blue for icons */
+        font-size: 1.6rem;
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+     
+      .main-content .uploaded-frames li .icon:hover {
+        color: #2196f3; /* Bright blue icon hover effect */
+      }
+     
+      .footer {
+        background-color: #2196f3; /* Bright blue footer */
+        color: #fff;
+        padding: 2rem;
+        text-align: center;
+        border-top: 2px solid #003366; /* Dark blue border-top */
+        font-size: 1.1rem;
+      }
+     
+      .footer a {
+        color: #003366; /* Dark blue for footer links */
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+        padding: 0.2rem;
+      }
+     
+      .footer a:hover {
+        color: #fff;
+      }
+     
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+     
+      /* Grid Container Styling */
+      .grid-container {
+        display: grid;
+        gap: 0px;
+        justify-content: center;
+        align-items: center;
+        padding: 0px;
+        width: 100%; /* Make the grid occupy the entire width */
+        height: 100%; /* Make the grid occupy the entire height */
+        margin: 0; /* Remove any default margins */
+      }
+     
+      .grid-container img {
+        width: 100%; /* Make the image take up full width */
+        height: 100%; /* Make the image take up full height */
+        border: none; /* Remove the border */
+        box-shadow: none; /* Remove the box shadow */
+        border-radius: 0; /* Remove any border-radius */
+      }
+     
+      /* Adjusting the video container */
+      .main-content .video-feed .video-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 0; /* No border-radius around the container */
+        box-shadow: none; /* Remove box-shadow */
+      }
+     
+      .main-content .video-feed .video-container img {
+        width: 100%;
+        height: 100%;
+      }
+     
+     
+      @media (min-width: 768px) {
+        .main-content .video-feed {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+     
+      @media (min-width: 1024px) {
+        .main-content .video-feed {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+     
+      .hover-scale {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+     
+      .hover-scale:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+      }
+       
+     
+      .container {
+        width: 100%; /* Fixed-size square */
+        height: 100%;
+        display: grid;
+        gap: 0px; /* Spacing between boxes */
+        background-color: black;
+        padding: 5px;
+    }
+
+
+    .stream {
+        background-color: #3498db;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 20px;
+    }
+       
+
+
+    </style>
+</head>
+<body class="bg-gradient-to-r from-light-blue-200 to-green-200 font-sans">
+    <nav class="navbar">
+        <div class="navbar-logo">
+            Violence Detection System
+        </div>
+        <div class="navbar-links">
+            <a href="/detected_frames" class="hover-scale">Detected Frames</a>
+            <a href="https://www.dropbox.com/home/Apps/AVI%20F2/frames" target="_blank" class="hover-scale">Access Dropbox</a>
+            <a href="/retrieve_frames" class="hover-scale">Retrieve Frames</a>
+        </div>
+    </nav>
+    <main class="main-content">
+    <div class="container" id="streamContainer" style="grid-template-columns: repeat({{ grid_size }}, 1fr);"></div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const container = document.getElementById("streamContainer");
+   
+        function updateGridLayout(streamsCount) {
+            let matrixSize = Math.ceil(Math.sqrt(streamsCount));
+   
+            // Ensure 2×2 for up to 4 streams
+            if (streamsCount <= 4) {
+                matrixSize = 2;
+            } else if (streamsCount <= 9) {
+                matrixSize = 3;
+            } else if (streamsCount <= 16) {
+                matrixSize = 4;
+            } else {
+                matrixSize = Math.ceil(Math.sqrt(streamsCount)); // General case
+            }
+   
+            // Apply grid layout
+            container.style.display = "grid";
+            container.style.gridTemplateColumns = `repeat(${matrixSize}, 1fr)`;
+            container.style.gridTemplateRows = `repeat(${matrixSize}, 1fr)`;
+            container.style.gap = "10px"; // Adds spacing
+            container.innerHTML = ""; // Clears previous streams
+   
+            for (let i = 1; i <= streamsCount; i++) {
+                let streamDiv = document.createElement("div");
+                streamDiv.className = "stream";
+                Object.assign(streamDiv.style, {
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "#000", // Simulating a black video feed
+                    padding: "5px",
+                    border: "2px solid white",
+                    borderRadius: "5px",
+                });
+   
+                let videoFeed = document.createElement("img");
+                videoFeed.src = `/video_feed/${i}`;
+                videoFeed.alt = `Stream ${i}`;
+                Object.assign(videoFeed.style, {
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover", // Prevents stretching
+                    borderRadius: "5px",
+                });
+   
+                streamDiv.appendChild(videoFeed);
+                container.appendChild(streamDiv);
+            }
+        }
+   
+        async function fetchStreams() {
+            try {
+                const response = await fetch("/get_stream_count");
+                const data = await response.json();
+                const streamsCount = data.count;
+                updateGridLayout(streamsCount);
+            } catch (error) {
+                console.error("Error fetching streams:", error);
+            }
+        }
+   
+        fetchStreams(); // Initial fetch
+    });
+   
+   
+      </script>
+     
+       
+
+
+</main>
+
+
+
+
+     <!-- Footer -->
+     <footer class="footer">
+        <p>&copy; 2025 Violence Detection System | <a href="#">Privacy Policy</a></p>
+    </footer>
+
+
+   
+
+
+   
+</body>
+</html>
+
+
